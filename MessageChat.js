@@ -16,35 +16,20 @@ import {
   import { FontAwesome } from "@expo/vector-icons";
   import { MaterialIcons } from "@expo/vector-icons";
   import EmojiSelector from 'react-native-emoji-selector';
+import { getChat } from './services';
+import socket from './socket';
   
-token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1MzFiZTY5MjhhOTA0Y2M3NTVlZTcwZSIsImVtYWlsIjoiYWJkdWxoYWRpMTIzQGdtYWlsLmNvbSIsImF1dGhTdHJhdGVneSI6ImxvY2FsIiwiaWF0IjoxNzAxMTU5MTc0LCJleHAiOjE3MDEyMTMxNzR9.BcBEfp1uDXBOSpgCBo80X2pMwZ0g3ELT4qurEqcKTA0"
+let token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1MmMzNmUzZGRkM2JjZmFjY2VkNzZiOSIsImVtYWlsIjoiQWJiaWdhaWxfQmFydG9sZXR0aUBnbWFpbC5jb20iLCJhdXRoU3RyYXRlZ3kiOiJsb2NhbCIsImlhdCI6MTcwMTIzMjY2NCwiZXhwIjoxNzAxMjg2NjY0fQ.KaMSNRzYRsQd2BkaDySHpVpV7opmhoPTOhcI7tNyJu8"
 brearToken = "Bearer " + token
 
   export default function MessageChat() {
-    const messageData = [
-      { id: 1, message: 'Hey', createdAt: '12:02 am', status: 'receive' },
-      { id: 2, message: 'Hello', createdAt: '12:03 am', status: 'send' }
-    ];
-  
+    
     const [showEmojiSelector, setShowEmojiSelector] = useState(false);
-    const [messageList, setNewMessageList] = useState(messageData);
+    const [messageList, setNewMessageList] = useState([]);
     const [newMessage, setNewMessage] = useState('');
     const [selectedMessages, setSelectedMessages] = useState([]);
   
-    const handleSend = () => {
-      if (newMessage.trim() !== '') {
-        const newMessageData = {
-          id: messageData.length + 1,
-          message: newMessage,
-          createdAt: getCurrentTime(),
-          status: 'send',
-        };
-  
-        setNewMessageList([...messageList, newMessageData]);
-        setNewMessage('');
-      }
-    };
-  
+    
     const getCurrentTime = () => {
       const currentTime = new Date().toLocaleTimeString([], {
         hour: '2-digit',
@@ -124,9 +109,9 @@ brearToken = "Bearer " + token
     });
   
     const { userId, UserName, image } = route?.params;
-  
+    
     const handleDeselect = (id) =>{
-   if (selectedMessages.includes(id)) {
+    if (selectedMessages.includes(id)) {
         setSelectedMessages(selectedMessages.filter((msgId) => msgId !== id));
       }
     }
@@ -142,10 +127,35 @@ brearToken = "Bearer " + token
       setSelectedMessages([]);
     };
 
-    useEffect(()=>{
-      
+    useEffect( ()=>{
+      async function loadChat(){
+       let messages = (await getChat(token, userId)).data.data.chat[0].messages;
+       setNewMessageList(messages);
+      }
+      loadChat()
     }, [userId])
-  
+     /*Sockets Logic*/
+     socket.on('receiveMessage', (message)=>{
+      let receivedMessage = message;
+      receivedMessage.status = "receive";
+      setNewMessageList([...messageList, receivedMessage]);
+    })
+
+    socket.on('sentMessage', (message)=>{
+      console.log('message has been sent')
+      let sentMessage = message;
+      sentMessage.status = "send";
+      setNewMessageList([...messageList, sentMessage]);
+    })
+    socket.on('test', (d)=>{
+      console.log(d)
+    })
+    const handleSend = () => {
+      if (newMessage.trim() !== '') {
+        socket.emit('sendMessage', userId, newMessage)
+      }
+    };
+
     return (
       <KeyboardAvoidingView style={{ flex: 1, backgroundColor: '#F0F0F0' }}>
         <ScrollView

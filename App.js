@@ -6,7 +6,7 @@ import socket from "./socket.js";
 
 export default function App() {
   useEffect(()=>{
-    socket.auth = { token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1MzFiZTY5MjhhOTA0Y2M3NTVlZTcwZSIsImVtYWlsIjoiYWJkdWxoYWRpMTIzQGdtYWlsLmNvbSIsImF1dGhTdHJhdGVneSI6ImxvY2FsIiwiaWF0IjoxNzAxMTU5MTc0LCJleHAiOjE3MDEyMTMxNzR9.BcBEfp1uDXBOSpgCBo80X2pMwZ0g3ELT4qurEqcKTA0" };
+    socket.auth = { token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1MmMzNmUzZGRkM2JjZmFjY2VkNzZiOSIsImVtYWlsIjoiQWJiaWdhaWxfQmFydG9sZXR0aUBnbWFpbC5jb20iLCJhdXRoU3RyYXRlZ3kiOiJsb2NhbCIsImlhdCI6MTcwMTIzMjY2NCwiZXhwIjoxNzAxMjg2NjY0fQ.KaMSNRzYRsQd2BkaDySHpVpV7opmhoPTOhcI7tNyJu8"}
     try{
       console.log(socket.connect())
     }
